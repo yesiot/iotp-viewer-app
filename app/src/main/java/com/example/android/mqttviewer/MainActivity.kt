@@ -11,7 +11,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
-    private val TAG = "MyActivity"
+    private val TAG = "MainActivity"
     private val PREFERENCES_NAME = "mqtt app preferences"
 
     private fun saveSettings() {
@@ -48,7 +48,7 @@ class MainActivity : AppCompatActivity() {
 
             val serverURI = "tcp://" + mqttServer.text.toString() + ":" + mqttPortNumber.text.toString()
 
-            globalApp.mqttEngine.connect(applicationContext, serverURI, mqttUserName.text.toString(), mqttPassword.text.toString().toCharArray())
+            globalApp.connectToMqttSetrver(applicationContext, serverURI, mqttUserName.text.toString(), mqttPassword.text.toString().toCharArray())
 
             val intent = Intent(this, DeviceListActivity::class.java)
             startActivity(intent)

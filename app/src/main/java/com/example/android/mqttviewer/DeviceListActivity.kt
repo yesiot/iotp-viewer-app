@@ -6,16 +6,39 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 
 
+class DeviceListActivity : AppCompatActivity(), MessageConsumerInterface, TopicsProvider {
 
-class DeviceListActivity : AppCompatActivity(), OnTopicChangeInterface {
+    private val TAG = "DeviceListActivity"
+
     private lateinit var viewAdapter: MqttDeviceAdapter
     private lateinit var viewManager: RecyclerView.LayoutManager
 
+    private val topics = mutableMapOf<String, String>()
 
-    override fun onTopicChange() {
-        viewAdapter.notifyDataSetChanged()
+    override fun onNewMessage(topic : String, value : String) {
+        val old : String? = topics[topic]
+        topics[topic] = value
+
+        if(old != value) {
+            viewAdapter.notifyDataSetChanged()
+        }
+    }
+
+    override fun getTopic(position: Int) : Pair<String, String>? {
+        try {
+            val sequence = topics.asSequence()
+            return Pair(sequence.elementAt(position).key, sequence.elementAt(position).value)
+        } catch (e: Exception) {
+            Log.d(TAG, e.message)
+        }
+        return null
+    }
+
+    override fun getSize() : Int {
+        return topics.size
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,12 +50,10 @@ class DeviceListActivity : AppCompatActivity(), OnTopicChangeInterface {
         val globalApp = applicationContext as App
 
 
-        viewAdapter = MqttDeviceAdapter(globalApp.mqttEngine as TopicsProvider)
-        globalApp.mqttEngine.setTopicChangeListener(this)
+        viewAdapter = MqttDeviceAdapter(this as TopicsProvider)
+        globalApp.setMessageConsumer(this)
 
         recview_device_list.apply {
-
-            //setHasFixedSize(true)
 
             // use a linear layout manager
             layoutManager = viewManager

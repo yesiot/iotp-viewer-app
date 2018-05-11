@@ -16,7 +16,6 @@ class MqttDeviceAdapter(topicsProvider : TopicsProvider) : RecyclerView.Adapter<
 
     val topicsProvider = topicsProvider
 
-
     override fun onCreateViewHolder(parent: ViewGroup,
                                     viewType: Int): MqttDeviceAdapter.DeviceViewHolder {
 
@@ -37,7 +36,6 @@ class MqttDeviceAdapter(topicsProvider : TopicsProvider) : RecyclerView.Adapter<
     }
 
     override fun getItemCount() = topicsProvider.getSize()
-
 
     class DeviceViewHolder(val deviceItemView: View) : RecyclerView.ViewHolder(deviceItemView)
     {
