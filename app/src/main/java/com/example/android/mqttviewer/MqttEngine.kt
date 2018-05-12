@@ -18,8 +18,12 @@ class MqttEngine :  MqttCallbackExtended {
     private var onNewMessage: MessageHandler? = null
 
 
-    fun setMessageHandler(consumer : MessageHandler) {
-        onNewMessage = consumer
+    fun setMessageHandler(handler : MessageHandler) {
+        onNewMessage = handler
+    }
+
+    fun setNewDeviceHandler(handler : NewDeviceHandler) {
+        onNewDevice = handler
     }
 
     override fun connectComplete(reconnect: Boolean, serverURI: String) {
@@ -36,6 +40,9 @@ class MqttEngine :  MqttCallbackExtended {
 
             if(topic == "\$SYS/broker/log/N") {
                 Log.d(TAG, message.toString())
+            }
+            if(topic.contains("discovery")) {
+                onNewDevice?.invoke(topic.substringBefore("/"))
             }
             else {
                 onNewMessage?.invoke(topic, message.toString())

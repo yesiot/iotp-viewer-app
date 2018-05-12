@@ -7,14 +7,14 @@ import android.view.ViewGroup
 import android.widget.TextView
 import java.io.Serializable
 
-interface TopicsProvider {
-    fun getTopic(position: Int) : Pair<String, String>?
-    fun getSize() : Int
+interface DeviceInfoProvider {
+    fun getDeviceInfo(position: Int) : Pair<String, String>?
+    fun getNumberOfDevices() : Int
 }
 
-class MqttDeviceAdapter(topicsProvider : TopicsProvider) : RecyclerView.Adapter<MqttDeviceAdapter.DeviceViewHolder>(), Serializable {
+class MqttDeviceAdapter(deviceInfoProvider : DeviceInfoProvider) : RecyclerView.Adapter<MqttDeviceAdapter.DeviceViewHolder>(), Serializable {
 
-    val topicsProvider = topicsProvider
+    val deviceInfoProvider = deviceInfoProvider
 
     override fun onCreateViewHolder(parent: ViewGroup,
                                     viewType: Int): MqttDeviceAdapter.DeviceViewHolder {
@@ -28,18 +28,18 @@ class MqttDeviceAdapter(topicsProvider : TopicsProvider) : RecyclerView.Adapter<
 
     override fun onBindViewHolder(holder: DeviceViewHolder, position: Int) {
 
-        val topic = topicsProvider.getTopic(position)
-        if(topic != null) {
-            holder.listItemNumberView.text = topic.first
-            holder.viewHolderIndex.text = topic.second
+        val deviceInfo = deviceInfoProvider.getDeviceInfo(position)
+        if(deviceInfo != null) {
+            holder.name.text = deviceInfo.first
+            holder.status.text = deviceInfo.second
         }
     }
 
-    override fun getItemCount() = topicsProvider.getSize()
+    override fun getItemCount() = deviceInfoProvider.getNumberOfDevices()
 
     class DeviceViewHolder(val deviceItemView: View) : RecyclerView.ViewHolder(deviceItemView)
     {
-        val listItemNumberView : TextView = deviceItemView.findViewById(R.id.tv_item_number) as TextView
-        val viewHolderIndex : TextView = deviceItemView.findViewById(R.id.tv_view_holder_instance) as TextView
+        val name : TextView = deviceItemView.findViewById(R.id.tv_device_name) as TextView
+        val status : TextView = deviceItemView.findViewById(R.id.tv_device_status) as TextView
     }
 }

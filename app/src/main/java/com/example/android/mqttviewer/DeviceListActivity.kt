@@ -9,27 +9,29 @@ import android.support.v7.widget.RecyclerView
 import android.util.Log
 
 
-class DeviceListActivity : AppCompatActivity(), TopicsProvider {
+class DeviceListActivity : AppCompatActivity(), DeviceInfoProvider {
 
     private val TAG = "DeviceListActivity"
 
     private lateinit var viewAdapter: MqttDeviceAdapter
     private lateinit var viewManager: RecyclerView.LayoutManager
 
-    private val topics = mutableMapOf<String, String>()
+    private val devices = mutableMapOf<String, String>()
 
-    fun onNewMessage(topic : String, value : String) {
-        val old : String? = topics[topic]
-        topics[topic] = value
 
-        if(old != value) {
+    fun onNewDevice(devName : String) {
+        val old : String? = devices[devName]
+        devices[devName] = "STATUS" //TODO: add status
+
+        if(old != "STATUS") {
             viewAdapter.notifyDataSetChanged()
         }
     }
 
-    override fun getTopic(position: Int) : Pair<String, String>? {
+
+    override fun getDeviceInfo(position: Int) : Pair<String, String>? {
         try {
-            val sequence = topics.asSequence()
+            val sequence = devices.asSequence()
             return Pair(sequence.elementAt(position).key, sequence.elementAt(position).value)
         } catch (e: Exception) {
             Log.d(TAG, e.message)
@@ -37,8 +39,8 @@ class DeviceListActivity : AppCompatActivity(), TopicsProvider {
         return null
     }
 
-    override fun getSize() : Int {
-        return topics.size
+    override fun getNumberOfDevices(): Int {
+        return devices.size
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,8 +52,8 @@ class DeviceListActivity : AppCompatActivity(), TopicsProvider {
         val globalApp = applicationContext as App
 
 
-        viewAdapter = MqttDeviceAdapter(this as TopicsProvider)
-        globalApp.setMessageHandler(::onNewMessage)
+        viewAdapter = MqttDeviceAdapter(this as DeviceInfoProvider)
+        globalApp.setNewDeviceHandler(::onNewDevice)
 
         recview_device_list.apply {
 

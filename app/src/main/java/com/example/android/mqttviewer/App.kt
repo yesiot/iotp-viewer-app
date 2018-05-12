@@ -10,6 +10,10 @@ class App : Application() {
         mqttEngine.setMessageHandler(handler)
     }
 
+    fun setNewDeviceHandler(handler : NewDeviceHandler) {
+        mqttEngine.setNewDeviceHandler(handler)
+    }
+
     fun connectToMqttSetrver(context : Context, uri : String, user : String, password : CharArray) {
         mqttEngine.connect(context, uri, user, password)
     }
