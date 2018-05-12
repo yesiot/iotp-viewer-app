@@ -9,7 +9,7 @@ import android.support.v7.widget.RecyclerView
 import android.util.Log
 
 
-class DeviceListActivity : AppCompatActivity(), MessageConsumerInterface, TopicsProvider {
+class DeviceListActivity : AppCompatActivity(), TopicsProvider {
 
     private val TAG = "DeviceListActivity"
 
@@ -18,7 +18,7 @@ class DeviceListActivity : AppCompatActivity(), MessageConsumerInterface, Topics
 
     private val topics = mutableMapOf<String, String>()
 
-    override fun onNewMessage(topic : String, value : String) {
+    fun onNewMessage(topic : String, value : String) {
         val old : String? = topics[topic]
         topics[topic] = value
 
@@ -51,7 +51,7 @@ class DeviceListActivity : AppCompatActivity(), MessageConsumerInterface, Topics
 
 
         viewAdapter = MqttDeviceAdapter(this as TopicsProvider)
-        globalApp.setMessageConsumer(this)
+        globalApp.setMessageHandler(::onNewMessage)
 
         recview_device_list.apply {
 

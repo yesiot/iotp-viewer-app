@@ -5,27 +5,28 @@ import android.util.Log
 import org.eclipse.paho.android.service.MqttAndroidClient
 import org.eclipse.paho.client.mqttv3.*
 
-interface MessageConsumerInterface {
-    fun onNewMessage(topic : String, value : String)
-}
+typealias NewDeviceHandler = (String) -> Unit
+typealias MessageHandler = (String, String) -> Unit
 
 class MqttEngine :  MqttCallbackExtended {
     private val TAG = "Mqtt engine"
 
     private lateinit var    mqttAndroidClient: MqttAndroidClient
 
-    private var             messageConsumer: MessageConsumerInterface? = null
+    private var onNewDevice: NewDeviceHandler? = null
+
+    private var onNewMessage: MessageHandler? = null
 
 
-    fun setMessageConsumer(consumer : MessageConsumerInterface) {
-        messageConsumer = consumer
+    fun setMessageHandler(consumer : MessageHandler) {
+        onNewMessage = consumer
     }
 
     override fun connectComplete(reconnect: Boolean, serverURI: String) {
         Log.d(TAG, "Connection")
 
-        mqttAndroidClient.subscribe("\$SYS/#", 0)
-        mqttAndroidClient.subscribe("hello/#", 0)
+        //mqttAndroidClient.subscribe("\$SYS/#", 0)
+        mqttAndroidClient.subscribe("+/discovery", 0)
     }
 
     override fun messageArrived(topic: String?, message: MqttMessage?) {
@@ -37,7 +38,7 @@ class MqttEngine :  MqttCallbackExtended {
                 Log.d(TAG, message.toString())
             }
             else {
-                messageConsumer?.onNewMessage(topic, message.toString())
+                onNewMessage?.invoke(topic, message.toString())
             }
         }
     }

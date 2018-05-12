@@ -6,8 +6,8 @@ import android.content.Context
 class App : Application() {
     private val mqttEngine = MqttEngine()
 
-    fun setMessageConsumer(consumer : MessageConsumerInterface) {
-        mqttEngine.setMessageConsumer(consumer)
+    fun setMessageHandler(handler : MessageHandler) {
+        mqttEngine.setMessageHandler(handler)
     }
 
     fun connectToMqttSetrver(context : Context, uri : String, user : String, password : CharArray) {
