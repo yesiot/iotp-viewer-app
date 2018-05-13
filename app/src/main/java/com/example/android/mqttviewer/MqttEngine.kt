@@ -12,7 +12,15 @@ enum class DeviceStatus {
 typealias DeviceStatusHandler = (String, DeviceStatus) -> Unit
 typealias MessageHandler = (String, String) -> Unit
 
-class MqttEngine :  MqttCallbackExtended {
+
+interface MqttEngineInterface {
+    fun setMessageHandler(handler : MessageHandler)
+    fun setDeviceStatusHandler(handler : DeviceStatusHandler)
+    fun subscribeToDevice(devName : String)
+    fun connect(context : Context, uri : String, user : String, password : CharArray)
+}
+
+class MqttEngine :  MqttCallbackExtended, MqttEngineInterface{
 
     private val TAG = "Mqtt engine"
     private val STATUS_ID = "status"
@@ -24,13 +32,40 @@ class MqttEngine :  MqttCallbackExtended {
     private var onNewMessage: MessageHandler? = null
 
 
-    fun setMessageHandler(handler : MessageHandler) {
+    override fun setMessageHandler(handler : MessageHandler) {
         onNewMessage = handler
     }
 
-    fun setDeviceStatusHandler(handler : DeviceStatusHandler) {
+    override fun setDeviceStatusHandler(handler : DeviceStatusHandler) {
         onDeviceStatusChanged = handler
     }
+
+    override fun subscribeToDevice(devName : String) {
+        mqttAndroidClient.subscribe("$devName/#", 0)
+    }
+
+    override fun connect(context : Context, uri : String, user : String, password : CharArray) {
+
+        mqttAndroidClient = MqttAndroidClient(context, uri, "mqtt viewer")
+
+        mqttAndroidClient.setCallback(this)
+
+        var options = MqttConnectOptions();
+
+        options.keepAliveInterval = 20
+        options.isCleanSession = true
+        options.userName = user
+        options.password = password
+
+        try {
+            mqttAndroidClient.connect(options)
+        }
+        catch(e : MqttException)
+        {
+            Log.e(TAG, e.message)
+        }
+    }
+
 
     override fun connectComplete(reconnect: Boolean, serverURI: String) {
         Log.d(TAG, "Connection")
@@ -72,27 +107,5 @@ class MqttEngine :  MqttCallbackExtended {
     }
 
     override fun deliveryComplete(token: IMqttDeliveryToken?) {
-    }
-
-    fun connect(context : Context, uri : String, user : String, password : CharArray) {
-
-        mqttAndroidClient = MqttAndroidClient(context, uri, "mqtt viewer")
-
-        mqttAndroidClient.setCallback(this)
-
-        var options = MqttConnectOptions();
-
-        options.keepAliveInterval = 20
-        options.isCleanSession = true
-        options.userName = user
-        options.password = password
-
-        try {
-            mqttAndroidClient.connect(options)
-        }
-        catch(e : MqttException)
-        {
-            Log.e(TAG, e.message)
-        }
     }
 }

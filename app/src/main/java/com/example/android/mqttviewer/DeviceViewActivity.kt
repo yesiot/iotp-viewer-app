@@ -13,5 +13,14 @@ class DeviceViewActivity : AppCompatActivity() {
         val deviceName = getIntent().getExtras().getString("DEVICE_NAME")
 
         text_deviceName.text = deviceName
+
+        val globalApp = applicationContext as App
+        globalApp.getMqttEngine().setMessageHandler(::onNewMessage)
+        globalApp.getMqttEngine().subscribeToDevice(deviceName)
+    }
+
+    fun onNewMessage(topic : String, value : String) {
+        if(topic.contains("counter"))
+            text_counter.text = value
     }
 }

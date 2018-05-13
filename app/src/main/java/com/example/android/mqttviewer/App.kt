@@ -6,15 +6,7 @@ import android.content.Context
 class App : Application() {
     private val mqttEngine = MqttEngine()
 
-    fun setMessageHandler(handler : MessageHandler) {
-        mqttEngine.setMessageHandler(handler)
-    }
-
-    fun setDeviceStatusHandler(handler : DeviceStatusHandler) {
-        mqttEngine.setDeviceStatusHandler(handler)
-    }
-
-    fun connectToMqttSetrver(context : Context, uri : String, user : String, password : CharArray) {
-        mqttEngine.connect(context, uri, user, password)
+    fun getMqttEngine () : MqttEngineInterface{
+        return mqttEngine
     }
 }

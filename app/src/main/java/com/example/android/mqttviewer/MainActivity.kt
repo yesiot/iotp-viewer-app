@@ -48,7 +48,7 @@ class MainActivity : AppCompatActivity() {
 
             val serverURI = "tcp://" + text_mqttServer.text.toString() + ":" + text_mqttPortNumber.text.toString()
 
-            globalApp.connectToMqttSetrver(applicationContext, serverURI, text_mqttUserName.text.toString(), text_mqttPassword.text.toString().toCharArray())
+            globalApp.getMqttEngine().connect(applicationContext, serverURI, text_mqttUserName.text.toString(), text_mqttPassword.text.toString().toCharArray())
 
             val intent = Intent(this, DeviceListActivity::class.java)
             startActivity(intent)

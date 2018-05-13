@@ -60,7 +60,7 @@ class DeviceListActivity : AppCompatActivity(), DeviceInfoProvider, ListItemClic
 
 
         viewAdapter = MqttDeviceAdapter(this as DeviceInfoProvider, this as ListItemClickListener)
-        globalApp.setDeviceStatusHandler(::onNewDevice)
+        globalApp.getMqttEngine().setDeviceStatusHandler(::onNewDevice)
 
         recview_device_list.apply {
 
