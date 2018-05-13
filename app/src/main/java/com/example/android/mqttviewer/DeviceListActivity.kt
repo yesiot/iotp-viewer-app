@@ -1,5 +1,6 @@
 package com.example.android.mqttviewer
 
+import android.content.Intent
 import kotlinx.android.synthetic.main.activity_device_list.*
 
 import android.support.v7.app.AppCompatActivity
@@ -7,29 +8,35 @@ import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
+import android.view.View
 
 
-class DeviceListActivity : AppCompatActivity(), DeviceInfoProvider {
+class DeviceListActivity : AppCompatActivity(), DeviceInfoProvider, ListItemClickListener {
 
     private val TAG = "DeviceListActivity"
 
     private lateinit var viewAdapter: MqttDeviceAdapter
     private lateinit var viewManager: RecyclerView.LayoutManager
 
-    private val devices = mutableMapOf<String, String>()
+    private val devices = mutableMapOf<String, DeviceStatus>()
 
+    override fun onListItemClick(clickedItemIndex: Int) {
+        val intent = Intent(this, DeviceViewActivity::class.java)
+        intent.putExtra("DEVICE_NAME", getDeviceInfo(clickedItemIndex)?.first)
+        startActivity(intent)
+    }
 
-    fun onNewDevice(devName : String) {
-        val old : String? = devices[devName]
-        devices[devName] = "STATUS" //TODO: add status
+    fun onNewDevice(devName : String, status : DeviceStatus ) {
+        val old : DeviceStatus? = devices[devName]
+        devices[devName] = status
 
-        if(old != "STATUS") {
+        if(old != status) {
             viewAdapter.notifyDataSetChanged()
         }
     }
 
 
-    override fun getDeviceInfo(position: Int) : Pair<String, String>? {
+    override fun getDeviceInfo(position: Int) : Pair<String, DeviceStatus>? {
         try {
             val sequence = devices.asSequence()
             return Pair(sequence.elementAt(position).key, sequence.elementAt(position).value)
@@ -52,8 +59,8 @@ class DeviceListActivity : AppCompatActivity(), DeviceInfoProvider {
         val globalApp = applicationContext as App
 
 
-        viewAdapter = MqttDeviceAdapter(this as DeviceInfoProvider)
-        globalApp.setNewDeviceHandler(::onNewDevice)
+        viewAdapter = MqttDeviceAdapter(this as DeviceInfoProvider, this as ListItemClickListener)
+        globalApp.setDeviceStatusHandler(::onNewDevice)
 
         recview_device_list.apply {
 

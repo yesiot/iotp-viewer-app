@@ -16,19 +16,19 @@ class MainActivity : AppCompatActivity() {
 
     private fun saveSettings() {
         val editor = getSharedPreferences(PREFERENCES_NAME, MODE_PRIVATE).edit()
-        editor.putString("mqttServer", mqttServer.text.toString())
-        editor.putInt("mqttPortNumber", mqttPortNumber.text.toString().toInt())
-        editor.putString("mqttUserName", mqttUserName.text.toString())
-        editor.putString("mqttUserPassword", mqttPassword.text.toString())
+        editor.putString("mqttServer", text_mqttServer.text.toString())
+        editor.putInt("mqttPortNumber", text_mqttPortNumber.text.toString().toInt())
+        editor.putString("mqttUserName", text_mqttUserName.text.toString())
+        editor.putString("mqttUserPassword", text_mqttPassword.text.toString())
         editor.apply()
     }
 
     private fun restoreSetting() {
         val prefs = getSharedPreferences(PREFERENCES_NAME, MODE_PRIVATE)
-        mqttServer.setText(prefs.getString("mqttServer", ""))
-        mqttPortNumber.setText(prefs.getInt("mqttPortNumber", 1883).toString())
-        mqttUserName.setText(prefs.getString("mqttUserName", ""))
-        mqttPassword.setText(prefs.getString("mqttUserPassword", ""))
+        text_mqttServer.setText(prefs.getString("mqttServer", ""))
+        text_mqttPortNumber.setText(prefs.getInt("mqttPortNumber", 1883).toString())
+        text_mqttUserName.setText(prefs.getString("mqttUserName", ""))
+        text_mqttPassword.setText(prefs.getString("mqttUserPassword", ""))
     }
 
 
@@ -46,9 +46,9 @@ class MainActivity : AppCompatActivity() {
         button_connect.setOnClickListener() {
             saveSettings()
 
-            val serverURI = "tcp://" + mqttServer.text.toString() + ":" + mqttPortNumber.text.toString()
+            val serverURI = "tcp://" + text_mqttServer.text.toString() + ":" + text_mqttPortNumber.text.toString()
 
-            globalApp.connectToMqttSetrver(applicationContext, serverURI, mqttUserName.text.toString(), mqttPassword.text.toString().toCharArray())
+            globalApp.connectToMqttSetrver(applicationContext, serverURI, text_mqttUserName.text.toString(), text_mqttPassword.text.toString().toCharArray())
 
             val intent = Intent(this, DeviceListActivity::class.java)
             startActivity(intent)

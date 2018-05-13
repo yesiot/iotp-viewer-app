@@ -16,7 +16,7 @@
 
 
         <EditText
-            android:id="@+id/mqttServer"
+            android:id="@+id/text_mqttServer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
@@ -25,7 +25,7 @@
             tools:layout_editor_absoluteY="246dp" />
 
         <EditText
-            android:id="@+id/mqttPortNumber"
+            android:id="@+id/text_mqttPortNumber"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
@@ -33,7 +33,7 @@
             android:inputType="number" />
 
         <EditText
-            android:id="@+id/mqttUserName"
+            android:id="@+id/text_mqttUserName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
@@ -42,7 +42,7 @@
             tools:layout_editor_absoluteY="246dp" />
 
         <EditText
-            android:id="@+id/mqttPassword"
+            android:id="@+id/text_mqttPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
@@ -58,16 +58,6 @@
             android:text="Connect"
             app:layout_constraintHorizontal_bias="0.0" />
 
-        <TextView
-            android:id="@+id/text_hello_topic"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:gravity="bottom"
-            android:text="TextView"
-            tools:layout_editor_absoluteX="16dp"
-            tools:layout_editor_absoluteY="246dp"
-        />
 
     </LinearLayout>
 

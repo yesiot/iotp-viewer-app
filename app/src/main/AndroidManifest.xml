@@ -9,7 +9,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
-        android:name="App"
+        android:name=".App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -28,7 +28,9 @@
             android:name="org.eclipse.paho.android.service.MqttService"
             android:exported="false" />
 
-        <activity android:name=".DeviceListActivity"></activity>
+        <activity android:name=".DeviceListActivity" />
+        <activity android:name=".TopicListActivity" />
+        <activity android:name=".DeviceViewActivity"></activity>
     </application>
 
 </manifest>

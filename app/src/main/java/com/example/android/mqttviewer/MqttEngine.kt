@@ -5,15 +5,21 @@ import android.util.Log
 import org.eclipse.paho.android.service.MqttAndroidClient
 import org.eclipse.paho.client.mqttv3.*
 
-typealias NewDeviceHandler = (String) -> Unit
+enum class DeviceStatus {
+    UNKNOWN, ALIVE, DEAD,
+}
+
+typealias DeviceStatusHandler = (String, DeviceStatus) -> Unit
 typealias MessageHandler = (String, String) -> Unit
 
 class MqttEngine :  MqttCallbackExtended {
+
     private val TAG = "Mqtt engine"
+    private val STATUS_ID = "status"
 
-    private lateinit var    mqttAndroidClient: MqttAndroidClient
+    private lateinit var mqttAndroidClient: MqttAndroidClient
 
-    private var onNewDevice: NewDeviceHandler? = null
+    private var onDeviceStatusChanged: DeviceStatusHandler? = null
 
     private var onNewMessage: MessageHandler? = null
 
@@ -22,15 +28,19 @@ class MqttEngine :  MqttCallbackExtended {
         onNewMessage = handler
     }
 
-    fun setNewDeviceHandler(handler : NewDeviceHandler) {
-        onNewDevice = handler
+    fun setDeviceStatusHandler(handler : DeviceStatusHandler) {
+        onDeviceStatusChanged = handler
     }
 
     override fun connectComplete(reconnect: Boolean, serverURI: String) {
         Log.d(TAG, "Connection")
 
         //mqttAndroidClient.subscribe("\$SYS/#", 0)
-        mqttAndroidClient.subscribe("+/discovery", 0)
+        mqttAndroidClient.subscribe("+/$STATUS_ID", 0)
+    }
+
+    fun getDeviceName(topic: String): String {
+        return topic.substringBefore("/")
     }
 
     override fun messageArrived(topic: String?, message: MqttMessage?) {
@@ -41,8 +51,15 @@ class MqttEngine :  MqttCallbackExtended {
             if(topic == "\$SYS/broker/log/N") {
                 Log.d(TAG, message.toString())
             }
-            if(topic.contains("discovery")) {
-                onNewDevice?.invoke(topic.substringBefore("/"))
+            if(topic.contains(STATUS_ID)) {
+
+                val status : DeviceStatus = when (message.toString()) {
+                    "ALIVE" -> DeviceStatus.ALIVE
+                    "DEAD"  -> DeviceStatus.DEAD
+                    else    -> DeviceStatus.UNKNOWN
+                }
+
+                onDeviceStatusChanged?.invoke(getDeviceName(topic), status)
             }
             else {
                 onNewMessage?.invoke(topic, message.toString())
