@@ -10,12 +10,13 @@ enum class DeviceStatus {
 }
 
 typealias DeviceStatusHandler = (String, DeviceStatus) -> Unit
-typealias MessageHandler = (String, String) -> Unit
-
+typealias MessageHandler = (String, MqttMessage) -> Unit
+typealias ConnectionStatusHandler = () -> Unit
 
 interface MqttEngineInterface {
     fun setMessageHandler(handler : MessageHandler)
     fun setDeviceStatusHandler(handler : DeviceStatusHandler)
+    fun setConnectionStatusHandler(handler : ConnectionStatusHandler)
     fun subscribeToDevice(devName : String)
     fun connect(context : Context, uri : String, user : String, password : CharArray)
 }
@@ -27,10 +28,16 @@ class MqttEngine :  MqttCallbackExtended, MqttEngineInterface{
 
     private lateinit var mqttAndroidClient: MqttAndroidClient
 
+    private var onConnectionStatusChanged: ConnectionStatusHandler? = null
+
     private var onDeviceStatusChanged: DeviceStatusHandler? = null
 
     private var onNewMessage: MessageHandler? = null
 
+
+    override fun setConnectionStatusHandler(handler : ConnectionStatusHandler) {
+        onConnectionStatusChanged = handler
+    }
 
     override fun setMessageHandler(handler : MessageHandler) {
         onNewMessage = handler
@@ -41,6 +48,12 @@ class MqttEngine :  MqttCallbackExtended, MqttEngineInterface{
     }
 
     override fun subscribeToDevice(devName : String) {
+        if(devName == "rpi0Test2")
+            mqttAndroidClient.unsubscribe("rpi0Test/picture")
+        else
+            mqttAndroidClient.unsubscribe("rpi0Test2/picture")
+
+        mqttAndroidClient.subscribe("+/$STATUS_ID", 0)
         mqttAndroidClient.subscribe("$devName/#", 0)
     }
 
@@ -54,8 +67,11 @@ class MqttEngine :  MqttCallbackExtended, MqttEngineInterface{
 
         options.keepAliveInterval = 20
         options.isCleanSession = true
-        options.userName = user
-        options.password = password
+        if(!user.isBlank()) {
+            options.userName = user
+            options.password = password
+        }
+
 
         try {
             mqttAndroidClient.connect(options)
@@ -72,6 +88,7 @@ class MqttEngine :  MqttCallbackExtended, MqttEngineInterface{
 
         //mqttAndroidClient.subscribe("\$SYS/#", 0)
         mqttAndroidClient.subscribe("+/$STATUS_ID", 0)
+        onConnectionStatusChanged?.invoke()
     }
 
     fun getDeviceName(topic: String): String {
@@ -81,7 +98,7 @@ class MqttEngine :  MqttCallbackExtended, MqttEngineInterface{
     override fun messageArrived(topic: String?, message: MqttMessage?) {
         Log.d(TAG, "Message: $topic $message")
 
-        if(topic != null) {
+        if(topic != null && message != null) {
 
             if(topic == "\$SYS/broker/log/N") {
                 Log.d(TAG, message.toString())
@@ -97,7 +114,7 @@ class MqttEngine :  MqttCallbackExtended, MqttEngineInterface{
                 onDeviceStatusChanged?.invoke(getDeviceName(topic), status)
             }
             else {
-                onNewMessage?.invoke(topic, message.toString())
+                onNewMessage?.invoke(topic, message)
             }
         }
     }

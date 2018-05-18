@@ -32,6 +32,10 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+    fun onConnected() {
+        val intent = Intent(this, DeviceListActivity::class.java)
+        startActivity(intent)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -41,6 +45,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        globalApp.getMqttEngine().setConnectionStatusHandler( ::onConnected )
+
         restoreSetting()
 
         button_connect.setOnClickListener() {
@@ -49,9 +55,6 @@ class MainActivity : AppCompatActivity() {
             val serverURI = "tcp://" + text_mqttServer.text.toString() + ":" + text_mqttPortNumber.text.toString()
 
             globalApp.getMqttEngine().connect(applicationContext, serverURI, text_mqttUserName.text.toString(), text_mqttPassword.text.toString().toCharArray())
-
-            val intent = Intent(this, DeviceListActivity::class.java)
-            startActivity(intent)
         }
     }
 }
