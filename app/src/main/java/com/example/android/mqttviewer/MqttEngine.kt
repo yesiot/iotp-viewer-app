@@ -19,6 +19,7 @@ interface MqttEngineInterface {
     fun setConnectionStatusHandler(handler : ConnectionStatusHandler)
     fun subscribeToDevice(devName : String)
     fun connect(context : Context, uri : String, user : String, password : CharArray)
+    fun send(topic : String, value : String)
 }
 
 class MqttEngine :  MqttCallbackExtended, MqttEngineInterface{
@@ -45,6 +46,12 @@ class MqttEngine :  MqttCallbackExtended, MqttEngineInterface{
 
     override fun setDeviceStatusHandler(handler : DeviceStatusHandler) {
         onDeviceStatusChanged = handler
+    }
+
+    override fun send(topic : String, value : String) {
+        var message = MqttMessage(value.toByteArray())
+        message.qos = 2
+        mqttAndroidClient.publish(topic, message)
     }
 
     override fun subscribeToDevice(devName : String) {
